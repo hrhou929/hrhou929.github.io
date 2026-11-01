@@ -11,17 +11,20 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hrhou929.github.io/">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&amp;family=Lora:ital,wght@0,400..700;1,400..700&amp;display=swap" rel="stylesheet">
+<style>
     :root {
       --paper:#cddaec; --white:#fff; --ink:#283444; --muted:#617184;
       --green:#355ea3; --line:#e0e7f0; --wash:#eef3fa;
-      --serif:Georgia,'Times New Roman',serif;
+      --serif:'Lora',Georgia,'Times New Roman',serif;
       --accent:#b65bca; --pill:#dda5e8; --button-feedback:#b0e0e6;
       --shadow:0 10px 32px rgba(42,65,101,.07),0 2px 5px rgba(42,65,101,.03);
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth;scroll-padding-top:28px}
-    body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.8 -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.8 'Inter','PMingLiU','新細明體','Songti TC','Times New Roman',serif;-webkit-font-smoothing:antialiased}
     a{color:var(--green);text-decoration:none;text-underline-offset:4px;transition:color .18s ease,background-color .18s ease,text-shadow .18s ease}
     a:hover{text-decoration:underline}
     a:active{color:#29497d;text-shadow:0 0 12px rgba(53,94,163,.25)}
@@ -35,8 +38,8 @@
     .portrait{width:142px;height:142px;border-radius:24px;background:linear-gradient(145deg,#e7edf7,#f6eaf8);position:relative;display:grid;place-items:center;margin:0 auto 25px;border:1px solid var(--line)}
     .portrait span{font:50px var(--serif);letter-spacing:-4px;color:var(--green);padding-right:4px}
     .portrait:after{content:'';position:absolute;inset:9px;border:1px solid #d0dbea;border-radius:17px}
-    .name{font-size:30px;line-height:1.25;letter-spacing:-1px;font-weight:650;margin:0 0 8px}
-    .chinese{font-size:19px;color:var(--muted);letter-spacing:0;margin-bottom:20px}
+    .name{font-family:var(--serif);font-size:30px;line-height:1.25;letter-spacing:-1px;font-weight:650;margin:0 0 8px}
+    .chinese{font-family:'PMingLiU','新細明體','新细明体','Songti TC','Noto Serif CJK TC',serif;font-weight:400;font-size:19px;color:var(--muted);letter-spacing:0;margin-bottom:20px}
     .role{font-size:16px;line-height:1.8;margin:0 0 17px}.role strong{font-weight:600}
     .profile-note{font-size:14px;line-height:1.7;color:var(--muted);margin:0 0 24px}
     .contact{display:flex;flex-direction:column;gap:15px;text-align:left;border-top:1px solid var(--line);padding-top:23px;font-size:15px}
@@ -55,12 +58,12 @@
     .section{padding:32px;margin:0 0 24px}
     .eyebrow{display:flex;align-items:center;gap:16px;text-transform:uppercase;letter-spacing:1.8px;font-size:12px;font-weight:650;color:var(--accent);margin:0 0 18px}
     .eyebrow:after{content:'';height:1px;background:var(--line);flex:1}
-    h1{font:600 32px/1.3 -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:-.8px;margin:0 0 23px}
-    h2{font-size:14px;line-height:1.5;font-weight:650;text-transform:uppercase;letter-spacing:1.6px;color:var(--accent);margin:0 0 25px}
-    h3{font-size:17px;line-height:1.55;margin:0 0 9px;font-weight:650}
+    h1{font:600 32px/1.3 var(--serif);letter-spacing:-.8px;margin:0 0 23px}
+    h2{font-family:var(--serif);font-size:14px;line-height:1.5;font-weight:650;text-transform:uppercase;letter-spacing:1.6px;color:var(--accent);margin:0 0 25px}
+    h3{font-family:var(--serif);font-size:17px;line-height:1.55;margin:0 0 9px;font-weight:650}
     p{margin:0 0 18px}.section>p:last-child{margin-bottom:0}
     .intro{font-size:18px;line-height:1.9}
-    .intro .lead{font-size:22px;line-height:1.65;margin-bottom:24px}
+    .intro .lead{font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.65;margin-bottom:24px}
     .interests{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
     .interests span{font-size:13px;color:var(--green);background:var(--wash);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
     .section-header{display:flex;align-items:baseline;justify-content:space-between;gap:15px}
