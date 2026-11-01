@@ -32,4 +32,4 @@ The site is hosted on GitHub Pages. The publishing source is the root directory 
 
 ## Contact
 
-[1155210995@link.cuhk.edu.hk](mailto:1155210995@link.cuhk.edu.hk)
+[houhr0929@foxmail.com](mailto:houhr0929@foxmail.com)
