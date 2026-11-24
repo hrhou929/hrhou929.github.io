@@ -132,7 +132,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(216px, 246px) minmax(0, 1fr);
+      grid-template-columns: minmax(216px, 258px) minmax(0, 1fr);
       gap: clamp(24px, 4vw, 60px);
       padding-block: clamp(30px, 5vw, 60px) 28px;
       align-items: start;
@@ -372,6 +372,11 @@
       .beyond-list { grid-template-columns: 1fr; }
       .back-to-top { margin-inline-start: 0; }
     }
+    @media (max-width: 360px) {
+      .header-inner { gap: 4px; }
+      .nav a { padding-inline: 4px; font-size: 12px; }
+      .theme-control select { padding-inline: 3px; }
+    }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .nav a, .links a, .back-to-top, .entry details summary, .beyond-item { transition: none; }
@@ -415,9 +420,9 @@
     <div class="name">Haoran Hou</div>
     <div class="chinese" lang="zh-Hans">侯皓然</div>
     <p class="role"><strong>Undergraduate Student</strong><br>Statistics &amp; Data Science<br><a href="https://www.cuhk.edu.hk/english/">The Chinese University<br>of Hong Kong</a></p>
-    <p class="profile-note">Expected graduation · June 2027</p>
+    <p class="profile-note">Expected graduation · June&nbsp;2027</p>
     <div class="contact">
-      <a href="mailto:1155210995@link.cuhk.edu.hk"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="m3 5 7 6 7-6"/></svg><span class="email-label">1155210995@link.cuhk.edu.hk</span></a>
+      <a href="mailto:1155210995@link.cuhk.edu.hk"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="m3 5 7 6 7-6"/></svg><span class="email-label">1155210995@<wbr>link.cuhk.edu.hk</span></a>
       <a href="https://github.com/hrhou929"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 17c-4 1-4-2-5-2m10 4v-3c0-1-.3-2-1-2 3-.3 5-1.5 5-5 0-1-.4-2-1-3 .3-1 .2-2-.1-3-1 0-2 0-3 1a12 12 0 0 0-5 0C6 3 5 3 4 3c-.3 1-.4 2-.1 3-.6 1-1 2-1 3 0 3.5 2 4.7 5 5-.7.6-1 1.4-1 2v3"/></svg>GitHub</a>
       <a href="cv.html"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2h7l4 4v12H5zM12 2v5h4M8 10h5M8 13h5"/></svg>Curriculum Vitae ↗</a>
     </div>
