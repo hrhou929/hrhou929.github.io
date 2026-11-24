@@ -17,7 +17,13 @@
   <script>
     try {
       const theme = localStorage.getItem('homepage-theme');
-      if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      const tint = localStorage.getItem('homepage-accent');
+      const root = document.documentElement;
+      if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+      if (/^#[0-9a-f]{6}$/i.test(tint ?? '') && tint.toLowerCase() !== '#b0e0e6') {
+        root.dataset.accent = tint.toLowerCase();
+        root.style.setProperty('--theme-tint', tint);
+      }
     } catch {
       // The system theme still applies when browser storage is unavailable.
     }
@@ -46,6 +52,30 @@
 
     :root[data-theme="light"] { color-scheme: light; }
     :root[data-theme="dark"] { color-scheme: dark; }
+
+    @property --theme-tint {
+      syntax: "<color>";
+      inherits: true;
+      initial-value: #b0e0e6;
+    }
+
+    :root { --theme-tint: #b0e0e6; }
+    :root[data-accent] {
+      --paper: light-dark(color-mix(in srgb, #f3f7fa 90%, var(--theme-tint)), color-mix(in srgb, #111a23 94%, var(--theme-tint)));
+      --surface: light-dark(color-mix(in srgb, #fcfeff 96%, var(--theme-tint)), color-mix(in srgb, #192630 95%, var(--theme-tint)));
+      --line: light-dark(color-mix(in srgb, #d5e0e8 83%, var(--theme-tint)), color-mix(in srgb, #334a58 80%, var(--theme-tint)));
+      --accent: light-dark(color-mix(in srgb, #102331 68%, var(--theme-tint)), color-mix(in srgb, #e8f5f7 67%, var(--theme-tint)));
+      --wash: light-dark(color-mix(in srgb, #eef3f7 82%, var(--theme-tint)), color-mix(in srgb, #223642 91%, var(--theme-tint)));
+      --button-feedback: light-dark(color-mix(in srgb, #eef3f7 55%, var(--theme-tint)), color-mix(in srgb, #223642 80%, var(--theme-tint)));
+      --dot: color-mix(in srgb, var(--accent) 19%, transparent);
+      --header: color-mix(in srgb, var(--paper) 94%, transparent);
+    }
+
+    ::view-transition-old(root), ::view-transition-new(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+    ::view-transition-group(root) { animation-duration: 520ms; }
 
     @property --ripple-radius {
       syntax: "<length>";
@@ -125,14 +155,15 @@
       backdrop-filter: blur(12px);
     }
     .header-inner {
-      display: flex;
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
       min-height: 62px;
       padding-block: 7px;
     }
-    .nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+    .nav { grid-column: 2; display: flex; justify-content: center; flex-wrap: wrap; align-items: center; gap: 4px; }
     .nav a, .links a, .back-to-top, .entry details summary {
       border-radius: 7px;
       transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
@@ -152,22 +183,113 @@
       transform: translateY(1px);
     }
     .theme-control {
+      grid-column: 3;
+      justify-self: end;
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      white-space: nowrap;
+      gap: 6px;
     }
-    .theme-control select {
-      padding: 5px 6px;
+    .theme-icon {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
       border: 1px solid var(--line);
-      border-radius: 7px;
-      background-color: var(--surface);
+      border-radius: 11px;
+      background: var(--surface);
       color: var(--ink);
+      cursor: pointer;
+    }
+    .theme-icon svg { width: 19px; height: 19px; }
+    .theme-icon:hover, .theme-icon[aria-expanded="true"] { background: var(--button-feedback); }
+    .mode-toggle .moon, .mode-toggle[aria-pressed="true"] .sun { display: none; }
+    .mode-toggle[aria-pressed="true"] .moon { display: block; }
+    .palette-toggle::after {
+      content: '';
+      position: absolute;
+      inset-inline-end: 4px;
+      bottom: 4px;
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--theme-tint);
+    }
+    .appearance-panel {
+      position: absolute;
+      z-index: 1;
+      top: calc(100% + 7px);
+      inset-inline-end: 0;
+      width: min(332px, 100%);
+      max-height: calc(100dvh - 100px);
+      overflow: auto;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 12px 28px rgb(9 30 42 / 0.16);
+      font-size: 13px;
+    }
+    .appearance-panel fieldset { min-width: 0; margin: 0 0 13px; padding: 0; border: 0; }
+    .appearance-panel legend { margin-bottom: 5px; padding: 0; color: var(--ink); font-weight: 650; }
+    .mode-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; border-radius: 9px; background: var(--wash); }
+    .mode-options label, .accent-swatch, .custom-accent { position: relative; cursor: pointer; }
+    .mode-options label > span { display: block; padding: 4px 3px; border: 1px solid transparent; border-radius: 6px; text-align: center; }
+    .mode-options input:checked + span { border-color: var(--line); background: var(--surface); font-weight: 650; }
+    .appearance-panel input {
+      position: absolute;
+      inset: 0;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .appearance-panel input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .accent-options { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+    .accent-swatch, .custom-accent {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 30px;
+    }
+    .accent-swatch > span, .custom-accent > span {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--swatch);
+    }
+    .accent-swatch input:checked + span, .custom-accent[data-selected] > span { outline: 1px solid var(--ink); outline-offset: 2px; }
+    .accent-swatch input:checked + span::after {
+      content: '✓';
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--ink);
+      font: 700 10px/14px system-ui, sans-serif;
+      text-align: center;
+    }
+    .custom-accent { --swatch: conic-gradient(#e38d77, #dcb968, #7bb687, #76add9, #aa8ce0, #e38d77); }
+    .custom-accent > span { color: #142633; font: 700 17px/1 system-ui, sans-serif; }
+    .appearance-footer { display: flex; align-items: center; justify-content: space-between; gap: 5px 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+    .accent-status { display: flex; flex-wrap: wrap; gap: 2px 8px; color: var(--muted); }
+    .accent-status code { color: var(--ink); }
+    .appearance-reset {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 3px 8px;
+      background: var(--wash);
+      color: var(--accent);
       font: inherit;
       cursor: pointer;
     }
+    .appearance-reset:hover { background: var(--button-feedback); }
 
     .layout {
       position: relative;
@@ -403,6 +525,7 @@
     .scroll-top:focus-visible span, .scroll-top:hover span { background: var(--button-feedback); }
 
     @media (prefers-reduced-motion: no-preference) {
+      :root { transition: --theme-tint 240ms ease; }
       .is-entering { animation: content-enter 440ms cubic-bezier(0.2, 0.75, 0.3, 1) backwards; }
       .intro .lead.is-entering { animation-delay: 55ms; }
       .intro .prose.is-entering { animation-delay: 100ms; }
@@ -460,7 +583,6 @@
       .intro { padding-inline: 0; }
     }
     @media (max-width: 470px) {
-      .theme-control label { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
       .nav { gap: 2px; }
       .nav a { font-size: 13px; padding-inline: 6px; }
       .news-list li { grid-template-columns: max-content minmax(0, 1fr); gap: 4px 9px; }
@@ -468,10 +590,16 @@
       .beyond-list { grid-template-columns: 1fr; }
       .back-to-top { margin-inline-start: 0; }
     }
+    @media (max-width: 430px) {
+      html { scroll-padding-top: 106px; }
+      .header-inner { grid-template-columns: 1fr; gap: 3px; }
+      .nav, .theme-control { grid-column: 1; }
+      .theme-icon { width: 34px; height: 34px; }
+      .accent-options { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    }
     @media (max-width: 360px) {
       .header-inner { gap: 4px; }
       .nav a { padding-inline: 4px; font-size: 12px; }
-      .theme-control select { padding-inline: 3px; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -504,12 +632,50 @@
       <a class="cv" href="cv.html">CV ↗</a>
     </nav>
     <div class="theme-control" hidden>
-      <label for="theme">Theme</label>
-      <select id="theme">
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
+      <button class="theme-icon mode-toggle" type="button" aria-label="Dark mode" aria-pressed="false" title="Toggle dark mode">
+        <svg class="sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+        </svg>
+        <svg class="moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linejoin="round">
+          <path d="M20.9 14.1A9 9 0 0 1 9.9 3.1a9 9 0 1 0 11 11Z"/>
+        </svg>
+      </button>
+      <button class="theme-icon palette-toggle" type="button" aria-label="Theme colour" aria-expanded="false" aria-controls="appearance" aria-haspopup="dialog" title="Appearance and colours">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55">
+          <path d="M12 3a9 9 0 0 0 0 18h1.2a1.8 1.8 0 0 0 1.3-3.1 1.4 1.4 0 0 1 1-2.4h1.7A3.8 3.8 0 0 0 21 11.7 9 9 0 0 0 12 3Z"/>
+          <circle cx="7.5" cy="11.5" r="0.65"/><circle cx="10" cy="7.6" r="0.65"/><circle cx="14.6" cy="7.7" r="0.65"/><circle cx="17.1" cy="11" r="0.65"/>
+        </svg>
+      </button>
+      <div class="appearance-panel" id="appearance" role="dialog" aria-label="Appearance" hidden>
+        <fieldset>
+          <legend>Appearance</legend>
+          <div class="mode-options">
+            <label><input type="radio" name="theme-mode" value="system" checked><span>Auto</span></label>
+            <label><input type="radio" name="theme-mode" value="light"><span>Light</span></label>
+            <label><input type="radio" name="theme-mode" value="dark"><span>Dark</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Accent colour</legend>
+          <div class="accent-options">
+            <label class="accent-swatch" title="Ice blue" style="--swatch:#b0e0e6"><input type="radio" name="accent" value="#b0e0e6" aria-label="Ice blue" checked><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Gold" style="--swatch:#d4a562"><input type="radio" name="accent" value="#d4a562" aria-label="Gold"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Terracotta" style="--swatch:#cf7e60"><input type="radio" name="accent" value="#cf7e60" aria-label="Terracotta"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Rose" style="--swatch:#d57594"><input type="radio" name="accent" value="#d57594" aria-label="Rose"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Violet" style="--swatch:#9079db"><input type="radio" name="accent" value="#9079db" aria-label="Violet"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Ocean" style="--swatch:#5a94dc"><input type="radio" name="accent" value="#5a94dc" aria-label="Ocean"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Teal" style="--swatch:#43a99e"><input type="radio" name="accent" value="#43a99e" aria-label="Teal"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Jade" style="--swatch:#64a878"><input type="radio" name="accent" value="#64a878" aria-label="Jade"><span aria-hidden="true"></span></label>
+            <label class="accent-swatch" title="Slate" style="--swatch:#8496aa"><input type="radio" name="accent" value="#8496aa" aria-label="Slate"><span aria-hidden="true"></span></label>
+            <label class="custom-accent" title="Custom colour"><input type="color" value="#b0e0e6" aria-label="Pick a custom accent colour"><span aria-hidden="true">+</span></label>
+          </div>
+        </fieldset>
+        <div class="appearance-footer">
+          <div class="accent-status" aria-live="polite"><code>#B0E0E6</code><span>Ice blue</span></div>
+          <button class="appearance-reset" type="button">Reset</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -862,22 +1028,118 @@
         .forEach(element => reveal.observe(element));
     }
 
-    const theme = document.getElementById('theme');
     const root = document.documentElement;
-    theme.value = root.dataset.theme ?? 'system';
-    theme.addEventListener('change', () => {
-      const preference = theme.value;
-      if (preference === 'system') delete root.dataset.theme;
-      else root.dataset.theme = preference;
+    const themeControl = document.querySelector('.theme-control');
+    const modeToggle = themeControl.querySelector('.mode-toggle');
+    const paletteToggle = themeControl.querySelector('.palette-toggle');
+    const panel = document.getElementById('appearance');
+    const modeOptions = [...panel.querySelectorAll('input[name="theme-mode"]')];
+    const accentOptions = [...panel.querySelectorAll('input[name="accent"]')];
+    const customColour = panel.querySelector('input[type="color"]');
+    const accentHex = panel.querySelector('.accent-status code');
+    const accentName = panel.querySelector('.accent-status span');
+    const defaultColour = accentOptions[0].value;
+    const systemDark = matchMedia('(prefers-color-scheme: dark)');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let mode = root.dataset.theme ?? 'system';
+    let modeTransition;
 
+    function saveAppearance(key, value) {
       try {
-        if (preference === 'system') localStorage.removeItem('homepage-theme');
-        else localStorage.setItem('homepage-theme', preference);
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, value);
       } catch {
-        // The preference still applies until the page is closed.
+        // The preference still applies when browser storage is unavailable.
       }
+    }
+
+    function isDark(preference) {
+      return preference === 'dark' || (preference === 'system' && systemDark.matches);
+    }
+
+    function renderMode() {
+      if (mode === 'system') delete root.dataset.theme;
+      else root.dataset.theme = mode;
+      modeToggle.setAttribute('aria-pressed', String(isDark(mode)));
+      modeOptions.forEach(option => { option.checked = option.value === mode; });
+    }
+
+    function applyMode(preference, origin) {
+      mode = preference === 'light' || preference === 'dark' ? preference : 'system';
+      modeTransition?.skipTransition();
+      const changesScheme = isDark(mode) !== isDark(root.dataset.theme ?? 'system');
+      if (!origin || !changesScheme || reducedMotion.matches || !document.startViewTransition) {
+        renderMode();
+        return;
+      }
+
+      const bounds = origin.getBoundingClientRect();
+      const x = bounds.left + bounds.width / 2;
+      const y = bounds.top + bounds.height / 2;
+      const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      modeTransition = document.startViewTransition(renderMode);
+      modeTransition.ready.then(() => {
+        root.animate({
+          clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)']
+        }, { duration: 520, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' });
+      }).catch(() => {});
+    }
+
+    function selectMode(preference, origin) {
+      saveAppearance('homepage-theme', preference === 'system' ? null : preference);
+      applyMode(preference, origin);
+    }
+
+    function applyAccent(value, persist = false) {
+      const colour = /^#[0-9a-f]{6}$/i.test(value ?? '') ? value.toLowerCase() : defaultColour;
+      if (colour === defaultColour) {
+        root.style.removeProperty('--theme-tint');
+        delete root.dataset.accent;
+      } else {
+        root.style.setProperty('--theme-tint', colour);
+        root.dataset.accent = colour;
+      }
+      const preset = accentOptions.find(option => option.value === colour);
+      accentOptions.forEach(option => { option.checked = option === preset; });
+      customColour.closest('.custom-accent').toggleAttribute('data-selected', !preset);
+      if (customColour.value !== colour) customColour.value = colour;
+      accentHex.textContent = colour.toUpperCase();
+      accentName.textContent = preset?.getAttribute('aria-label') ?? 'Custom';
+      if (persist) saveAppearance('homepage-accent', colour === defaultColour ? null : colour);
+    }
+
+    function showAppearance(open) {
+      panel.hidden = !open;
+      paletteToggle.setAttribute('aria-expanded', String(open));
+    }
+
+    paletteToggle.addEventListener('click', () => showAppearance(panel.hidden));
+    document.addEventListener('pointerdown', event => {
+      if (!panel.hidden && !panel.contains(event.target) && !paletteToggle.contains(event.target)) showAppearance(false);
     });
-    theme.closest('.theme-control').hidden = false;
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || panel.hidden) return;
+      showAppearance(false);
+      paletteToggle.focus();
+    });
+    modeToggle.addEventListener('click', () => selectMode(isDark(mode) ? 'light' : 'dark', modeToggle));
+    modeOptions.forEach(option => option.addEventListener('change', () => selectMode(option.value, option)));
+    accentOptions.forEach(option => option.addEventListener('change', () => applyAccent(option.value, true)));
+    customColour.addEventListener('input', () => applyAccent(customColour.value));
+    customColour.addEventListener('change', () => applyAccent(customColour.value, true));
+    const reset = panel.querySelector('.appearance-reset');
+    reset.addEventListener('click', () => {
+      applyAccent(defaultColour, true);
+      selectMode('system', reset);
+    });
+    systemDark.addEventListener('change', renderMode);
+    window.addEventListener('storage', event => {
+      if (event.key === 'homepage-theme' || event.key === null) applyMode(event.newValue);
+      if (event.key === 'homepage-accent' || event.key === null) applyAccent(event.newValue);
+    });
+    renderMode();
+    applyAccent(root.dataset.accent);
+    themeControl.hidden = false;
   })();
 </script>
 </body>
