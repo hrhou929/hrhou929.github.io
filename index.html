@@ -360,13 +360,24 @@
     .section, .page-heading, .beyond-intro { padding: var(--section-padding); margin: 0 0 20px; }
 
     .intro { padding: 8px clamp(0px, 2vw, 22px) clamp(28px, 5vw, 48px); }
-    .intro h1 { font-size: clamp(42px, 6.2vw, 77px); }
-    .intro .lead {
-      max-width: 31ch;
-      margin: 14px 0 22px;
+    .intro .greeting {
+      margin: 0 0 13px;
+      color: var(--muted);
+      font: 500 clamp(19px, 2vw, 25px)/1.4 var(--serif);
+    }
+    .greeting strong { color: var(--ink); font-weight: 650; }
+    .intro h1 {
+      max-width: 24ch;
+      margin: 0 0 clamp(23px, 3vw, 36px);
+      font-size: clamp(35px, 5.25vw, 68px);
+      line-height: 1.08;
+      text-wrap: balance;
+    }
+    .headline-emphasis {
       color: var(--accent);
-      font: 500 clamp(21px, 3.2vw, 33px)/1.34 var(--serif);
-      letter-spacing: -0.025em;
+      text-decoration: underline var(--line) 0.08em;
+      text-underline-offset: 0.09em;
+      text-decoration-skip-ink: none;
     }
     .intro .prose { max-width: 69ch; color: var(--muted); }
     .interests { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
@@ -527,7 +538,7 @@
     @media (prefers-reduced-motion: no-preference) {
       :root { transition: --theme-tint 240ms ease; }
       .is-entering { animation: content-enter 440ms cubic-bezier(0.2, 0.75, 0.3, 1) backwards; }
-      .intro .lead.is-entering { animation-delay: 55ms; }
+      .intro h1.is-entering { animation-delay: 55ms; }
       .intro .prose.is-entering { animation-delay: 100ms; }
       .intro .interests.is-entering { animation-delay: 140ms; }
       @keyframes content-enter {
@@ -697,8 +708,8 @@
   <main id="content" tabindex="-1">
     <div class="panel" id="home">
       <section class="intro" aria-labelledby="about-title">
-        <h1 id="about-title">Haoran Hou</h1>
-        <p class="lead">I study how to measure and improve what AI agents can do.</p>
+        <p class="greeting">Hi, I’m <strong>Haoran Hou</strong>.</p>
+        <h1 id="about-title">I test how <span class="headline-emphasis">reliably</span> AI agents complete tasks and analyze where they fail.</h1>
         <div class="prose">
           <p>I study Statistics and Data Science at <a href="https://www.cuhk.edu.hk/english/">The Chinese University of Hong Kong</a> and expect to graduate in June 2027. I’m interested in what an evaluation actually measures, how stable the results are, and what an agent’s failures can teach us.</p>
           <p>At CUHK’s ARISE Lab, I contributed to <a href="#research">VisualRepair</a>, a framework that uses visual evidence to repair software issues. At Meituan’s Meyo Agent Platform, I worked on agent evaluation and reusable workflows.</p>
