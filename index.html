@@ -150,10 +150,20 @@
       position: sticky;
       z-index: 5;
       top: 0;
-      background: var(--header);
-      border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(12px);
     }
+    .site-header::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 -12px;
+      background: var(--header);
+      backdrop-filter: blur(12px);
+      mask-image: linear-gradient(#000 calc(100% - 12px), transparent);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+    .site-header.is-scrolled::before { opacity: 1; }
     .header-inner {
       position: relative;
       display: grid;
@@ -615,7 +625,7 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .nav a, .links a, .back-to-top, .entry details summary, .beyond-item,
-      .scroll-top, .scroll-top span { transition: none; }
+      .scroll-top, .scroll-top span, .site-header::before { transition: none; }
       .nav a:active, .links a:active, .back-to-top:active, .entry details summary:active { transform: none; }
       .scroll-top { translate: none; }
       .ambient-grid::after, .grid-ripple { display: none; }
@@ -950,6 +960,7 @@
     }
 
     const grid = document.querySelector('.ambient-grid');
+    const siteHeader = document.querySelector('.site-header');
     const floatingTop = document.querySelector('.scroll-top');
     document.querySelector('.back-to-top').addEventListener('click', event => {
       if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -963,6 +974,7 @@
     function updateViewport() {
       viewportFrame = 0;
       const y = Math.max(0, window.scrollY);
+      siteHeader.classList.toggle('is-scrolled', y > 8);
       const distance = document.documentElement.scrollHeight - window.innerHeight;
       const progress = distance > 0 ? Math.min(1, y / distance) : 0;
       floatingTop.classList.toggle('is-visible', y > Math.min(window.innerHeight * 0.72, 440));
